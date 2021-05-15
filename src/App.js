@@ -8,32 +8,32 @@ class App extends React.Component {
       { lat: 38.7117206, lng: -9.1264315 },
       { lat: 38.7123872, lng: -9.1287935 },
     ],
+    map: null
   };
   componentDidMount() {
     setTimeout(() => {
-      new window.google.maps.Map(document.getElementById("map"), {
+      let map = new window.google.maps.Map(document.getElementById("map"), {
         center: { lat: 38.7117164, lng: -9.1264315 },
-        zoom: 17,
+        zoom: 15,
       });
+      this.setState({
+        map
+      })
+
     }, 100);
   }
 
-  createMarker = (position, map) => {
+  createMarker = (position) => {
     const google = window.google;
     new google.maps.Marker({
       position: position,
-      map: map,
+      map: this.state.map,
     });
   };
 
   findRestaurants = () => {
     const google = window.google;
-
-    const map = new window.google.maps.Map(document.getElementById("map"), {
-      center: { lat: 38.7117164, lng: -9.1264315 },
-      zoom: 15,
-    });
-    const service = new google.maps.places.PlacesService(map);
+    const service = new google.maps.places.PlacesService(this.state.map);
     service.nearbySearch(
       {
         location: { lat: 38.7117164, lng: -9.1264315 },
@@ -45,7 +45,7 @@ class App extends React.Component {
           for (let i = 0; i < results.length; i++) {
             let lat = results[i].geometry.location.lat();
             let lng = results[i].geometry.location.lng();
-            this.createMarker({ lat, lng }, map);
+            this.createMarker({ lat, lng }, this.state.map);
           }
         }
       }
@@ -54,12 +54,7 @@ class App extends React.Component {
 
   findATMs = () => {
     const google = window.google;
-
-    const map = new window.google.maps.Map(document.getElementById("map"), {
-      center: { lat: 38.7117164, lng: -9.1264315 },
-      zoom: 15,
-    });
-    const service = new google.maps.places.PlacesService(map);
+    const service = new google.maps.places.PlacesService(this.state.map);
     service.nearbySearch(
       {
         location: { lat: 38.7117164, lng: -9.1264315 },
@@ -71,7 +66,7 @@ class App extends React.Component {
           for (let i = 0; i < results.length; i++) {
             let lat = results[i].geometry.location.lat();
             let lng = results[i].geometry.location.lng();
-            this.createMarker({ lat, lng }, map);
+            this.createMarker({ lat, lng }, this.state.map);
           }
         }
       }
@@ -79,25 +74,13 @@ class App extends React.Component {
   };
 
   drawMarkers = () => {
-    const google = window.google;
-
-    let map = new google.maps.Map(document.getElementById("map"), {
-      center: { lat: 38.7117164, lng: -9.1264315 },
-      zoom: 17,
-    });
-
     this.state.markers.forEach((marker) => {
-      this.createMarker(marker, map);
+      this.createMarker(marker);
     });
   };
 
   route = () => {
     const google = window.google;
-    let map = new window.google.maps.Map(document.getElementById("map"), {
-      center: { lat: 38.7117164, lng: -9.1264315 },
-      zoom: 17,
-    });
-
     let directionsService = new google.maps.DirectionsService();
     let directionsRenderer = new google.maps.DirectionsRenderer();
     let start = "Santa Apólonia, Lisboa";
@@ -112,7 +95,7 @@ class App extends React.Component {
     directionsService.route(request, (result, status) => {
       if (status === "OK") {
         directionsRenderer.setDirections(result);
-        directionsRenderer.setMap(map);
+        directionsRenderer.setMap(this.state.map);
       }
     });
   };
